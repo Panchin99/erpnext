@@ -6,9 +6,9 @@
 }) -%}
 <div class="card h-100">
 	{% if image %}
-	<img class="card-img-top" src="{{ image }}" alt="{{ title }}" style="max-height: 200px;">
+	<img class="card-img-top" src="{{ image }}" alt="{{ title }}" style="max-height: 400px;">
 	{% else %}
-	<div class="placeholder-div" style="max-height: 200px;">
+	<div class="placeholder-div" style="max-height: 400px;">
 		<span class="placeholder">
 			{{ frappe.utils.get_abbr(title or '') }}
 		</span>
@@ -23,8 +23,8 @@
 {%- endmacro -%}
 
 <div class="section-with-cards product-category-section">
-	{%- if title -%}
-	<h2 class="section-title">{{ title }}</h2>
+	<!-- {%- if title -%}
+	<h2 class="section-title">{{ title }}</h2> -->
 	{%- endif -%}
 	{%- if subtitle -%}
 	<p class="section-description">{{ subtitle }}</p>

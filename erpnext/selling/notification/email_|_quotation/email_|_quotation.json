@@ -1,0 +1,29 @@
+{
+ "attach_print": 1,
+ "channel": "Email",
+ "creation": "2023-05-31 14:14:41.959557",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Quotation",
+ "enabled": 1,
+ "event": "Submit",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Dear Buyer,\n\nWe have received your quotation and will be sending the sales order for confirmation.",
+ "modified": "2023-05-31 14:14:41.959557",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Email | Quotation",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "contact_email"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "sender": "Amarratva Knitwears",
+ "sender_email": "amarratvaknitwearsonline@gmail.com",
+ "subject": "Quotation Received | {{ doc.name }} "
+}

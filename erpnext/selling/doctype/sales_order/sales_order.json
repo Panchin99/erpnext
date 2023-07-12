@@ -397,7 +397,7 @@
    "hide_days": 1,
    "hide_seconds": 1,
    "label": "Mobile No",
-   "read_only": 1
+   "read_only": 0
   },
   {
    "fieldname": "contact_email",

@@ -329,11 +329,6 @@ def make_default_records():
 			"variable_label": "Total Shipments",
 			"path": "get_total_shipments",
 		},
-		{
-			"param_name": "total_ordered",
-			"variable_label": "Total Ordered",
-			"path": "get_ordered_qty",
-		},
 	]
 	install_standing_docs = [
 		{

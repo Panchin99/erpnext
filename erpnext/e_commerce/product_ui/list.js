@@ -24,7 +24,7 @@ erpnext.ProductList = class {
 			let title = item.web_item_name || item.item_name || item.item_code || "";
 			title =  title.length > 200 ? title.substr(0, 200) + "..." : title;
 
-			html += `<div class='row list-row w-100 mb-4'>`;
+			html += `<div class='row list-row w-100 mb-4 border border-dark'>`;
 			html += me.get_image_html(item, title, me.settings);
 			html += me.get_row_body_html(item, title, me.settings);
 			html += `</div>`;
@@ -78,10 +78,9 @@ erpnext.ProductList = class {
 		let title_html = `<div style="display: flex; margin-left: -15px;">`;
 		title_html += `
 			<div class="col-8" style="margin-right: -15px;">
-				<a href="/${ item.route || '#' }">
-					<div class="product-title">
+				<a class="" href="/${ item.route || '#' }"
+					style="color: var(--gray-800); font-weight: 500;">
 					${ title }
-					</div>
 				</a>
 			</div>
 		`;
@@ -162,7 +161,7 @@ erpnext.ProductList = class {
 			return `
 				<a href="/${ item.route || '#' }">
 					<div class="btn btn-sm btn-explore-variants btn mb-0 mt-0">
-						${ __('Explore') }
+						${ __('Buy Now') }
 					</div>
 				</a>
 			`;
@@ -183,7 +182,7 @@ erpnext.ProductList = class {
 				</div>
 
 				<div class="cart-indicator list-indicator ${item.in_cart ? '' : 'hidden'}">
-					1
+					*
 				</div>
 
 				<a href="/cart">

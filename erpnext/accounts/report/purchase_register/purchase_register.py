@@ -10,18 +10,17 @@ from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 	get_accounting_dimensions,
 	get_dimension_with_children,
 )
-from erpnext.accounts.report.utils import get_query_columns, get_values_for_columns
 
 
 def execute(filters=None):
 	return _execute(filters)
 
 
-def _execute(filters=None, additional_table_columns=None):
+def _execute(filters=None, additional_table_columns=None, additional_query_columns=None):
 	if not filters:
 		filters = {}
 
-	invoice_list = get_invoices(filters, get_query_columns(additional_table_columns))
+	invoice_list = get_invoices(filters, additional_query_columns)
 	columns, expense_accounts, tax_accounts, unrealized_profit_loss_accounts = get_columns(
 		invoice_list, additional_table_columns
 	)
@@ -48,12 +47,13 @@ def _execute(filters=None, additional_table_columns=None):
 		purchase_receipt = list(set(invoice_po_pr_map.get(inv.name, {}).get("purchase_receipt", [])))
 		project = list(set(invoice_po_pr_map.get(inv.name, {}).get("project", [])))
 
-		row = [
-			inv.name,
-			inv.posting_date,
-			inv.supplier,
-			inv.supplier_name,
-			*get_values_for_columns(additional_table_columns, inv).values(),
+		row = [inv.name, inv.posting_date, inv.supplier, inv.supplier_name]
+
+		if additional_query_columns:
+			for col in additional_query_columns:
+				row.append(inv.get(col))
+
+		row += [
 			supplier_details.get(inv.supplier),  # supplier_group
 			inv.tax_id,
 			inv.credit_to,
@@ -244,6 +244,9 @@ def get_conditions(filters):
 
 
 def get_invoices(filters, additional_query_columns):
+	if additional_query_columns:
+		additional_query_columns = ", " + ", ".join(additional_query_columns)
+
 	conditions = get_conditions(filters)
 	return frappe.db.sql(
 		"""
@@ -252,10 +255,11 @@ def get_invoices(filters, additional_query_columns):
 			remarks, base_net_total, base_grand_total, outstanding_amount,
 			mode_of_payment {0}
 		from `tabPurchase Invoice`
-		where docstatus = 1 {1}
+		where docstatus = 1 %s
 		order by posting_date desc, name desc""".format(
-			additional_query_columns, conditions
-		),
+			additional_query_columns or ""
+		)
+		% conditions,
 		filters,
 		as_dict=1,
 	)

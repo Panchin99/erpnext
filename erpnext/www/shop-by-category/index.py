@@ -37,7 +37,7 @@ def get_slideshow(slideshow):
 
 def get_tabs(categories):
 	tab_values = {
-		"title": _("Shop by Category"),
+		"title": _("Brands"),
 	}
 
 	categorical_data = get_category_records(categories)
@@ -56,36 +56,37 @@ def get_category_records(categories: list):
 	website_item_meta = frappe.get_meta("Website Item", cached=True)
 
 	for c in categories:
-		if c == "item_group":
-			categorical_data["item_group"] = frappe.db.get_all(
-				"Item Group",
-				filters={"parent_item_group": "All Item Groups", "show_in_website": 1},
-				fields=["name", "parent_item_group", "is_group", "image", "route"],
-			)
+		# if c == "item_group":
+		# 	categorical_data["Categories"] = frappe.db.get_all(
+		# 		"Item Group",
+		# 		filters={"parent_item_group": "All Item Groups", "show_in_website": 1},
+		# 		fields=["name", "parent_item_group", "is_group", "image", "route"],
+		# 	)
 
-			continue
+		# 	continue
 
-		field_type = website_item_meta.get_field(c).fieldtype
+		if c == "brand":	
+			field_type = website_item_meta.get_field(c).fieldtype
 
-		if field_type == "Table MultiSelect":
-			child_doc = website_item_meta.get_field(c).options
-			for field in frappe.get_meta(child_doc, cached=True).fields:
-				if field.fieldtype == "Link" and field.reqd:
-					doctype = field.options
-		else:
-			doctype = website_item_meta.get_field(c).options
+			if field_type == "Table MultiSelect":
+				child_doc = website_item_meta.get_field(c).options
+				for field in frappe.get_meta(child_doc, cached=True).fields:
+					if field.fieldtype == "Link" and field.reqd:
+						doctype = field.options
+			else:
+				doctype = website_item_meta.get_field(c).options
 
-		fields = ["name"]
+			fields = ["name"]
 
-		try:
-			meta = frappe.get_meta(doctype, cached=True)
-			if meta.get_field("image"):
-				fields += ["image"]
+			try:
+				meta = frappe.get_meta(doctype, cached=True)
+				if meta.get_field("image"):
+					fields += ["image"]
 
-			data = frappe.db.get_all(doctype, fields=fields)
-			categorical_data[c] = data
-		except BaseException:
-			frappe.throw(_("DocType {} not found").format(doctype))
-			continue
+				data = frappe.db.get_all(doctype, fields=fields)
+				categorical_data[c] = data
+			except BaseException:
+				frappe.throw(_("DocType {} not found").format(doctype))
+				continue
 
 	return categorical_data

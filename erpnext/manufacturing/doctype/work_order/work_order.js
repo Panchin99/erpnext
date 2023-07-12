@@ -139,7 +139,7 @@ frappe.ui.form.on("Work Order", {
 		}
 
 		if (frm.doc.status != "Closed") {
-			if (frm.doc.docstatus === 1 && frm.doc.status !== "Completed"
+			if (frm.doc.docstatus === 1
 				&& frm.doc.operations && frm.doc.operations.length) {
 
 				const not_completed = frm.doc.operations.filter(d => {
@@ -256,12 +256,6 @@ frappe.ui.form.on("Work Order", {
 					label: __('Batch Size'),
 					read_only: 1
 				},
-				{
-					fieldtype: 'Int',
-					fieldname: 'sequence_id',
-					label: __('Sequence Id'),
-					read_only: 1
-				},
 			],
 			data: operations_data,
 			in_place_edit: true,
@@ -286,8 +280,8 @@ frappe.ui.form.on("Work Order", {
 
 		var pending_qty = 0;
 		frm.doc.operations.forEach(data => {
-			if(data.completed_qty + data.process_loss_qty != frm.doc.qty) {
-				pending_qty = frm.doc.qty - flt(data.completed_qty) - flt(data.process_loss_qty);
+			if(data.completed_qty != frm.doc.qty) {
+				pending_qty = frm.doc.qty - flt(data.completed_qty);
 
 				if (pending_qty) {
 					dialog.fields_dict.operations.df.data.push({
@@ -296,8 +290,7 @@ frappe.ui.form.on("Work Order", {
 						'workstation': data.workstation,
 						'batch_size': data.batch_size,
 						'qty': pending_qty,
-						'pending_qty': pending_qty,
-						'sequence_id': data.sequence_id
+						'pending_qty': pending_qty
 					});
 				}
 			}

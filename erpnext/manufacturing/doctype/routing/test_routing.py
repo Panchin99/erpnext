@@ -141,7 +141,6 @@ def setup_bom(**args):
 			routing=args.routing,
 			with_operations=1,
 			currency=args.currency,
-			source_warehouse=args.source_warehouse,
 		)
 	else:
 		bom_doc = frappe.get_doc("BOM", name)

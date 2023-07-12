@@ -30,8 +30,6 @@ class BuyingController(SubcontractingController):
 			return _("From {0} | {1} {2}").format(self.supplier_name, self.currency, self.grand_total)
 
 	def validate(self):
-		self.set_rate_for_standalone_debit_note()
-
 		super(BuyingController, self).validate()
 		if getattr(self, "supplier", None) and not self.supplier_name:
 			self.supplier_name = frappe.db.get_value("Supplier", self.supplier, "supplier_name")
@@ -73,30 +71,6 @@ class BuyingController(SubcontractingController):
 				"Buying Settings", "backflush_raw_materials_of_subcontract_based_on"
 			),
 		)
-
-	def set_rate_for_standalone_debit_note(self):
-		if self.get("is_return") and self.get("update_stock") and not self.return_against:
-			for row in self.items:
-
-				# override the rate with valuation rate
-				row.rate = get_incoming_rate(
-					{
-						"item_code": row.item_code,
-						"warehouse": row.warehouse,
-						"posting_date": self.get("posting_date"),
-						"posting_time": self.get("posting_time"),
-						"qty": row.qty,
-						"serial_and_batch_bundle": row.get("serial_and_batch_bundle"),
-						"company": self.company,
-						"voucher_type": self.doctype,
-						"voucher_no": self.name,
-					},
-					raise_error_if_no_rate=False,
-				)
-
-				row.discount_percentage = 0.0
-				row.discount_amount = 0.0
-				row.margin_rate_or_amount = 0.0
 
 	def set_missing_values(self, for_validate=False):
 		super(BuyingController, self).set_missing_values(for_validate)
@@ -210,7 +184,6 @@ class BuyingController(SubcontractingController):
 		address_dict = {
 			"supplier_address": "address_display",
 			"shipping_address": "shipping_address_display",
-			"billing_address": "billing_address_display",
 		}
 
 		for address_field, address_display_field in address_dict.items():
@@ -471,7 +444,7 @@ class BuyingController(SubcontractingController):
 				continue
 
 			if d.warehouse:
-				pr_qty = flt(flt(d.qty) * flt(d.conversion_factor), d.precision("stock_qty"))
+				pr_qty = flt(d.qty) * flt(d.conversion_factor)
 
 				if pr_qty:
 
@@ -533,7 +506,7 @@ class BuyingController(SubcontractingController):
 						d,
 						{
 							"warehouse": d.rejected_warehouse,
-							"actual_qty": flt(flt(d.rejected_qty) * flt(d.conversion_factor), d.precision("stock_qty")),
+							"actual_qty": flt(d.rejected_qty) * flt(d.conversion_factor),
 							"serial_no": cstr(d.rejected_serial_no).strip(),
 							"incoming_rate": 0.0,
 						},
@@ -709,7 +682,6 @@ class BuyingController(SubcontractingController):
 				"asset_quantity": row.qty if is_grouped_asset else 0,
 				"purchase_receipt": self.name if self.doctype == "Purchase Receipt" else None,
 				"purchase_invoice": self.name if self.doctype == "Purchase Invoice" else None,
-				"cost_center": row.cost_center,
 			}
 		)
 

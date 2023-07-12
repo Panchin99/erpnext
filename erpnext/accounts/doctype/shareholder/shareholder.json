@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "naming_series:",
  "creation": "2017-12-25 16:50:53.878430",
  "doctype": "DocType",
@@ -112,12 +111,11 @@
    "read_only": 1
   }
  ],
- "links": [],
- "modified": "2023-04-10 22:02:20.406087",
+ "modified": "2019-11-17 23:24:11.395882",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Shareholder",
- "naming_rule": "By \"Naming Series\" field",
+ "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [
   {
@@ -160,7 +158,6 @@
  "search_fields": "folio_no",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "title_field": "title",
  "track_changes": 1
 }
