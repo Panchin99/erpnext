@@ -95,6 +95,8 @@
   "address_and_contact_tab",
   "contact_info",
   "customer_address",
+  "billing_state",
+  "billing_city",
   "address_display",
   "col_break21",
   "contact_person",
@@ -104,6 +106,8 @@
   "shipping_address_section",
   "shipping_address_name",
   "shipping_address",
+  "shipping_state",
+  "shipping_city",
   "column_break_95",
   "dispatch_address_name",
   "dispatch_address",
@@ -249,6 +253,7 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date",
    "no_copy": 1,
    "oldfieldname": "posting_date",
@@ -1392,13 +1397,37 @@
    "fieldname": "named_place",
    "fieldtype": "Data",
    "label": "Named Place"
+  },
+  {
+   "fetch_from": "customer_address.state",
+   "fieldname": "billing_state",
+   "fieldtype": "Data",
+   "label": "Billing State"
+  },
+  {
+   "fetch_from": "customer_address.city",
+   "fieldname": "billing_city",
+   "fieldtype": "Data",
+   "label": "Billing City"
+  },
+  {
+   "fetch_from": "shipping_address_name.gst_state",
+   "fieldname": "shipping_state",
+   "fieldtype": "Data",
+   "label": "Shipping State"
+  },
+  {
+   "fetch_from": "shipping_address_name.city",
+   "fieldname": "shipping_city",
+   "fieldtype": "Data",
+   "label": "Shipping City"
   }
  ],
  "icon": "fa fa-truck",
  "idx": 146,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-04-21 11:15:23.931084",
+ "modified": "2023-08-24 14:42:15.873517",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Delivery Note",

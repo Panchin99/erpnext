@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"7LO2Yrr20g\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Home\",\"col\":12}},{\"id\":\"0FgbsUp6G6\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"ni-k1keYkp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"OyMXCoWPvB\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"2eYszDD2gT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"DwMoc-rdAH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"43otLxcMCr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Leaderboard\",\"col\":3}},{\"id\":\"3zdSU7BLke\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fSS6Lofnh8\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"RkWiQcEvAa\",\"type\":\"card\",\"data\":{\"card_name\":\"Accounting\",\"col\":4}},{\"id\":\"IyQGnmvuSF\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock\",\"col\":4}},{\"id\":\"AoaIyiqnjP\",\"type\":\"card\",\"data\":{\"card_name\":\"CRM\",\"col\":4}},{\"id\":\"dt_l-scbiJ\",\"type\":\"card\",\"data\":{\"card_name\":\"Data Import and Settings\",\"col\":4}}]",
+ "content": "[{\"id\":\"0FgbsUp6G6\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"ni-k1keYkp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"OyMXCoWPvB\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"2eYszDD2gT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"DwMoc-rdAH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"43otLxcMCr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Leaderboard\",\"col\":3}},{\"id\":\"S7uo4yepKL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Just Stock (Fastest Way)\",\"col\":3}},{\"id\":\"rFlAscex8M\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Overall Stock Balance\",\"col\":3}},{\"id\":\"AQ9y2sqfDW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Report Customer Item-wise breakdown\",\"col\":5}},{\"id\":\"4V5oqTOVQw\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_PXFOCR5cQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Insights</b></span>\",\"col\":12}},{\"id\":\"2k_VfYrMYQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Insights Home\",\"col\":3}},{\"id\":\"otWBlkJend\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Dashboard 1\",\"col\":3}},{\"id\":\"d4lH9r_4Y6\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SAhpyCuLAA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Advanced Insights - Metabase Reports</b></span>\",\"col\":12}},{\"id\":\"eOOM0xHia_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer-wise Delivery Report\",\"col\":3}},{\"id\":\"-bVRI1u_O4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Style wise Stock\",\"col\":3}},{\"id\":\"D7wNYBkd2E\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Dashboard\",\"col\":3}},{\"id\":\"2M1GU4BJxj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item-Customer-Month Wise Sales Report\",\"col\":5}},{\"id\":\"uWdjMfvMLP\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\" style=\\\"\\\"><a href=\\\"http://139.59.26.13:3000/question/228-item-wise-sales-order-report-order-vs-delivered\\\">Item wise Sales Order Report Order Vs Delivered</a></span><span class=\\\"h1\\\"></span>\",\"col\":8}},{\"id\":\"3zdSU7BLke\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fSS6Lofnh8\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"RkWiQcEvAa\",\"type\":\"card\",\"data\":{\"card_name\":\"Accounting\",\"col\":4}},{\"id\":\"IyQGnmvuSF\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock\",\"col\":4}},{\"id\":\"AoaIyiqnjP\",\"type\":\"card\",\"data\":{\"card_name\":\"CRM\",\"col\":4}},{\"id\":\"dt_l-scbiJ\",\"type\":\"card\",\"data\":{\"card_name\":\"Data Import and Settings\",\"col\":4}}]",
  "creation": "2020-01-23 13:46:38.833076",
  "custom_blocks": [],
  "docstatus": 0,
@@ -232,7 +232,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-16 14:24:09.956032",
+ "modified": "2023-09-07 19:08:43.681186",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Home",
@@ -246,9 +246,72 @@
  "sequence_id": 1.0,
  "shortcuts": [
   {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Dashboard",
+   "type": "URL",
+   "url": "http://139.59.26.13:3000/dashboard/65-sales"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Dashboard 1",
+   "type": "URL",
+   "url": "https://athleticclassic.in/insights/dashboard/DSH-0010"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Overall Stock Balance",
+   "link_to": "Overall Stock Balance Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Delivery Report Customer Item-wise breakdown",
+   "link_to": "Delivery Report Customer Item-wise breakdown",
+   "type": "Report"
+  },
+  {
    "label": "Item",
    "link_to": "Item",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Insights Home",
+   "type": "URL",
+   "url": "https://athleticclassic.in/insights/"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Item-Customer-Month Wise Sales Report",
+   "type": "URL",
+   "url": "http://139.59.26.13:3000/question/196-item-customer-month-wise-sales-report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Style wise Stock",
+   "type": "URL",
+   "url": "http://139.59.26.13:3000/question/34-style-wise-stock"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Customer-wise Delivery Report",
+   "type": "URL",
+   "url": "http://139.59.26.13:3000/question/132-final-customer-wise-delivery-report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Just Stock (Fastest Way)",
+   "link_to": "Just Stock ( Warehouse Wise)",
+   "type": "Report"
   },
   {
    "label": "Customer",

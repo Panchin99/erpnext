@@ -126,7 +126,7 @@ erpnext.PointOfSale.ItemSelector = class {
 
 				<div class="item-detail">
 					<div class="item-name">
-						${frappe.ellipsis(item.item_name, 18)}
+						${frappe.ellipsis(item.item_code, 18)}
 					</div>
 					<div class="item-rate">${format_currency(price_list_rate, item.currency, precision) || 0}</div>
 				</div>

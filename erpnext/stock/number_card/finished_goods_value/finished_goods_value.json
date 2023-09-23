@@ -1,0 +1,22 @@
+{
+ "creation": "2023-08-16 17:32:01.222114",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"company\":\"Amarratva Knitwears Private Limited\",\"from_date\":\"2023-08-12\",\"to_date\":\"2023-08-12\",\"warehouse\":\"Finished Goods - AKWPL\",\"include_uom\":\"Box\",\"show_stock_ageing_data\":1}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Finished Goods Value",
+ "modified": "2023-08-16 17:32:01.385418",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Finished Goods Value",
+ "owner": "Administrator",
+ "report_field": "bal_val",
+ "report_function": "Sum",
+ "report_name": "Overall Stock Balance Report",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

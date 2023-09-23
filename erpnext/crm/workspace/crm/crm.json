@@ -450,8 +450,8 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-15 15:58:52.967448",
- "modified_by": "amarratvaknitwearspl@gmail.com",
+ "modified": "2023-09-07 19:08:44.530301",
+ "modified_by": "Administrator",
  "module": "CRM",
  "name": "CRM",
  "number_cards": [],
@@ -461,7 +461,7 @@
  "quick_lists": [],
  "restrict_to_domain": "",
  "roles": [],
- "sequence_id": 7.0,
+ "sequence_id": 9.0,
  "shortcuts": [
   {
    "label": "Customer",

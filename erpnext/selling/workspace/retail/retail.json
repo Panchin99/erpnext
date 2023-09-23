@@ -103,7 +103,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-16 14:23:58.269040",
+ "modified": "2023-09-07 19:08:46.404116",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Retail",
@@ -114,7 +114,7 @@
  "quick_lists": [],
  "restrict_to_domain": "Retail",
  "roles": [],
- "sequence_id": 22.0,
+ "sequence_id": 29.0,
  "shortcuts": [
   {
    "doc_view": "",
