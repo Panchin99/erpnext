@@ -1,343 +1,358 @@
 class ItemConfigure {
-	constructor(item_code, item_name) {
-		this.item_code = item_code;
-		this.item_name = item_name;
+    constructor(itemCode, itemName) {
+        this.itemCode = itemCode;
+        this.itemName = itemName;
 
-		this.get_attributes_and_values()
-			.then(attribute_data => {
-				this.attribute_data = attribute_data;
-				this.show_configure_dialog();
-			});
-	}
+        this.initialize();
+    }
 
-	show_configure_dialog() {
-		const fields = this.attribute_data.map(a => {
-			return {
-				fieldtype: 'Select',
-				label: a.attribute,
-				fieldname: a.attribute,
-				options: a.values.map(v => {
-					return {
-						label: v,
-						value: v
-					};
-				}),
-				change: (e) => {
-					this.on_attribute_selection(e);
-				}
-			};
-		});
+    async initialize() {
+        try {
+            this.attributeData = await this.getAttributesAndValues();
+            const attributeName = this.attributeData[0].attribute;
+            const attributeValues = this.attributeData[0].values.map(value => ({ [attributeName]: value }));
 
-		this.dialog = new frappe.ui.Dialog({
-			title: __('Select Variant for {0}', [this.item_name]),
-			fields,
-			on_hide: () => {
-				set_continue_configuration();
-			}
-		});
+            const finalValues = await Promise.all(attributeValues.map(element => this.getNextAttributeAndValues(element)));
 
-		this.attribute_data.forEach(a => {
-			const field = this.dialog.get_field(a.attribute);
-			const $a = $(`<a href>${__("Clear")}</a>`);
-			$a.on('click', (e) => {
-				e.preventDefault();
-				this.dialog.set_value(a.attribute, '');
-			});
-			field.$wrapper.find('.help-box').append($a);
-		});
+            this.data = this.processFinalValues(finalValues);
 
-		this.append_status_area();
-		this.dialog.show();
+            this.showConfigureDialog();
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
-		this.dialog.set_values(JSON.parse(localStorage.getItem(this.get_cache_key())));
+    processFinalValues(finalValues) {
+        const processedValues = [];
 
-		$('.btn-configure').prop('disabled', false);
-	}
+        finalValues.forEach(value => {
+            const options = value.valid_options_for_attributes;
+            const exactMatch = value.exact_match[0];
 
-	on_attribute_selection(e) {
-		if (e) {
-			const changed_fieldname = $(e.target).data('fieldname');
-			this.show_range_input_if_applicable(changed_fieldname);
-		} else {
-			this.show_range_input_for_all_fields();
-		}
+            if (options && exactMatch && value.product_info.price && value.product_info.price.price_list_rate && value.available_qty > 0) {
+                const attributeName = Object.keys(options)[0];
+                const attributeValues = options[attributeName];
 
-		const values = this.dialog.get_values();
-		if (Object.keys(values).length === 0) {
-			this.clear_status();
-			localStorage.removeItem(this.get_cache_key());
-			return;
-		}
+                attributeValues.forEach(attributeValue => {
+                    const itemData = {
+                        [attributeName]: attributeValue,
+                        stock_qty: value.available_qty,
+                        item_code: exactMatch,
+                        unit_price: value.product_info.price.formatted_price,
+                        box_price: value.product_info.price.formatted_price_sales_uom,
+                        available_qty: value.available_qty,
+                        qty: "",
+                        allow_items_not_in_stock: value.product_info.allow_items_not_in_stock
+                    };
 
-		// save state
-		localStorage.setItem(this.get_cache_key(), JSON.stringify(values));
+                    processedValues.push(itemData);
+                });
+            }
+        });
 
-		// show
-		this.set_loading_status();
+        return processedValues;
+    }
 
-		this.get_next_attribute_and_values(values)
-			.then(data => {
-				const {
-					valid_options_for_attributes,
-				} = data;
 
-				this.set_item_found_status(data);
+    showConfigureDialog() {
+        const attributeName = this.attributeData[0].attribute;
+        const attributeValues = this.attributeData[0].values.map(value => value);
 
-				for (let attribute in valid_options_for_attributes) {
-					const valid_options = valid_options_for_attributes[attribute];
-					const options = this.dialog.get_field(attribute).df.options;
-					const new_options = options.map(o => {
-						o.disabled = !valid_options.includes(o.value);
-						return o;
-					});
+        const fields = [
+            {
+                fieldtype: 'Link',
+                fieldname: 'item_code',
+                hidden: 1,
+                label: 'item_code',
+            },
+            {
+                fieldtype: 'Data',
+                fieldname: attributeName,
+                in_list_view: 1,
+                read_only: true,
+                in_place_edit: false,
+                disabled: 1,
+                label: attributeName,
+            },
+            {
+                fieldtype: 'Read Only',
+                fieldname: 'unit_price',
+                read_only: 1,
+                in_place_edit: false,
+                in_list_view: 1,
+                label: __('Rate/Unit'),
+            },
+            {
+                fieldtype: 'Read Only',
+                fieldname: 'box_price',
+                read_only: 1,
+                in_place_edit: false,
+                in_list_view: 1,
+                label: __('Rate/Box'),
+            },
+            {
+                fieldtype: 'Int',
+                fieldname: 'ratio',
+                default: 0,
+                read_only: 0,
+                in_list_view: 1,
+                label: __('Ratio'),
+            },
+            {
+                fieldtype: 'Data',
+                fieldname: 'qty',
+                default: 0,
+                read_only: 0,
+                in_place_edit: true,
+                in_list_view: 1,
+                label: __('Quantity'),
+            },
+        ];
 
-					this.dialog.set_df_property(attribute, 'options', new_options);
-					this.dialog.get_field(attribute).set_options();
-				}
-			});
-	}
+        const savedDialogState = JSON.parse(sessionStorage.getItem('dialogState')) || {};
+        const { total_qty, size_table } = savedDialogState;
 
-	show_range_input_for_all_fields() {
-		this.dialog.fields.forEach(f => {
-			this.show_range_input_if_applicable(f.fieldname);
-		});
-	}
+        this.dialog = new frappe.ui.Dialog({
+            title: __("Select Size"),
+            fields: [
+                {
+                    fieldname: "total_qty",
+                    fieldtype: "Int",
+                    label: "<b>Total Boxes</b><br><i>Enter Total Quantity Required in boxes</i>",
+                    default: total_qty || 0,
+                },
+                {
+                    fieldname: "size_table",
+                    fieldtype: "Table",
+                    label: "<b>Sizes Available</b> <br><i>Select all the sizes that you require</i>",
+                    cannot_add_rows: 1,
+                    cannot_delete_rows: true,
+                    in_place_edit: false,
+                    reqd: 1,
+                    data: this.data,
+                    get_data: () => this.data,
+                    fields: fields
+                }
+            ],
+            primary_action: async () => {
+                const totalQty = this.dialog.get_value('total_qty');
+                const tableData = this.dialog.get_value('size_table');
 
-	show_range_input_if_applicable(fieldname) {
-		const changed_field = this.dialog.get_field(fieldname);
-		const changed_value = changed_field.get_value();
-		if (changed_value && changed_value.includes(' to ')) {
-			// possible range input
-			let numbers = changed_value.split(' to ');
-			numbers = numbers.map(number => parseFloat(number));
+                // Filter and process only the checked rows
+                const validRows = tableData.filter((row) => row.qty > 0 && row.__checked);
 
-			if (!numbers.some(n => isNaN(n))) {
-				numbers.sort((a, b) => a - b);
-				if (changed_field.$input_wrapper.find('.range-selector').length) {
-					return;
-				}
-				const parent = $('<div class="range-selector">')
-					.insertBefore(changed_field.$input_wrapper.find('.help-box'));
-				const control = frappe.ui.form.make_control({
-					df: {
-						fieldtype: 'Int',
-						label: __('Enter value betweeen {0} and {1}', [numbers[0], numbers[1]]),
-						change: () => {
-							const value = control.get_value();
-							if (value < numbers[0] || value > numbers[1]) {
-								control.$wrapper.addClass('was-validated');
-								control.set_description(
-									__('Value must be between {0} and {1}', [numbers[0], numbers[1]]));
-								control.$input[0].setCustomValidity('error');
-							} else {
-								control.$wrapper.removeClass('was-validated');
-								control.set_description('');
-								control.$input[0].setCustomValidity('');
-								this.update_range_values(fieldname, value);
-							}
-						}
-					},
-					render_input: true,
-					parent
-				});
-				control.$wrapper.addClass('mt-3');
-			}
-		}
-	}
+                // Validate if at least one row has a non-zero quantity
+                if (validRows.length === 0) {
+                    frappe.throw(__('Please make sure atleast one selected size has some quantity.'));
+                    return;
+                }
 
-	update_range_values(attribute, range_value) {
-		this.range_values = this.range_values || {};
-		this.range_values[attribute] = range_value;
-	}
+                const itemCodes = validRows.map(row => row.item_code);
+                const quantities = validRows.map(row => row.qty);
 
-	show_remaining_optional_attributes() {
-		// show all attributes if remaining
-		// unselected attributes are all optional
-		const unselected_attributes = this.dialog.fields.filter(df => {
-			const value_selected = this.dialog.get_value(df.fieldname);
-			return !value_selected;
-		});
-		const is_optional_attribute = df => {
-			const optional_attributes = this.attribute_data
-				.filter(a => a.optional).map(a => a.attribute);
-			return optional_attributes.includes(df.fieldname);
-		};
-		if (unselected_attributes.every(is_optional_attribute)) {
-			unselected_attributes.forEach(df => {
-				this.dialog.fields_dict[df.fieldname].$wrapper.show();
-			});
-		}
-	}
+                // Display the progress indicator
+                const progressTitle = __('Updating Cart');
+                const progressCount = 0;
+                const progressTotal = itemCodes.length;
+                const progressDescription = __('Updating cart items...');
+                frappe.show_progress(progressTitle, progressCount, progressTotal, progressDescription);
 
-	set_loading_status() {
-		this.dialog.$status_area.html(`
-			<div class="alert alert-warning d-flex justify-content-between align-items-center" role="alert">
-				${__('Loading...')}
-			</div>
-		`);
-	}
+                // Update the cart for each item code and quantity
+                for (let i = 0; i < itemCodes.length; i++) {
+                    const itemCode = itemCodes[i];
+                    const qty = quantities[i];
 
-	set_item_found_status(data) {
-		const html = this.get_html_for_item_found(data);
-		this.dialog.$status_area.html(html);
-	}
+                    // Update the cart for the current item code and quantity
+                    await erpnext.e_commerce.shopping_cart.update_cart({
+                        item_code: itemCode,
+                        qty: qty,
+                    });
 
-	clear_status() {
-		this.dialog.$status_area.empty();
-	}
+                    // Update the progress indicator count
+                    frappe.show_progress(progressTitle, i + 1, progressTotal, progressDescription);
+                }
 
-	get_html_for_item_found({ filtered_items_count, filtered_items, exact_match, product_info, available_qty, settings }) {
-		const one_item = exact_match.length === 1
-			? exact_match[0]
-			: filtered_items_count === 1
-				? filtered_items[0]
-				: '';
+                // Hide the progress indicator after cart update completion
+                frappe.hide_progress();
 
-		let item_add_to_cart = one_item ? `
-			<button data-item-code="${one_item}"
-				class="btn btn-primary btn-add-to-cart w-100"
-				data-action="btn_add_to_cart"
-			>
-				<span class="mr-2">
-					${frappe.utils.icon('assets', 'md')}
-				</span>
-				${__("Add to Cart")}
-			</button>
-		` : '';
+                // Clear sessionStorage after updating the cart
+                sessionStorage.removeItem('dialogState');
+                this.dialog.hide();
+                frappe.msgprint({
+                    title: __('Success'),
+                    indicator: 'green',
+                    message: __('Items successfully added to cart'),
+                    primary_action: {
+                        action() {
+                            // Redirect to the cart page
+                            window.location.href = '/cart';
+                        },
+                        label: __('Go to Cart')
+                    }
+                });
+            },
+            primary_action_label: __('Update cart'),
+            secondary_action: () => {
+                const totalValue = this.dialog.get_value('total_qty');
+                if (!totalValue) {
+                    frappe.throw(__('Please enter the total quantity.'));
+                    return;
+                }
 
-		const items_found = filtered_items_count === 1 ?
-			__('{0} item found.', [filtered_items_count]) :
-			__('{0} items found.', [filtered_items_count]);
+                const tableData = this.dialog.get_value('size_table');
+                const selectedRows = tableData.filter(row => row.__checked);
 
-		/* eslint-disable indent */
-		const item_found_status = exact_match.length === 1
-			? `<div class="alert alert-success d-flex justify-content-between align-items-center" role="alert">
-				<div><div>
-					${one_item}
-					${product_info && product_info.price && !$.isEmptyObject(product_info.price)
-						? '(' + product_info.price.formatted_price_sales_uom + ')'
-						: ''
-					}
+                if (selectedRows.length === 0) {
+                    frappe.throw(__('Please select at least one row.'));
+                    return;
+                }
 
-					${available_qty === 0 && product_info && product_info?.is_stock_item
-						? '<span class="text-danger">(' + __('Out of Stock') + ')</span>' : ''}
+                const ratios = tableData.map(row => {
+                    if (selectedRows.includes(row)) {
+                        return row.ratio !== undefined ? row.ratio : 1;
+                    } else {
+                        return 0;
+                    }
+                });
 
-				</div></div>
-				<a href data-action="btn_clear_values" data-item-code="${one_item}">
-					${__('Clear Values')}
-				</a>
-			</div>`
-			: `<div class="alert alert-warning d-flex justify-content-between align-items-center" role="alert">
-					<span>
-						${items_found}
-					</span>
-					<a href data-action="btn_clear_values">
-						${__('Clear values')}
-					</a>
-			</div>`;
-		/* eslint-disable indent */
+                const totalRatio = ratios.reduce((sum, ratio) => sum + ratio, 0);
+                const requiredQtyArray = ratios.map(ratio => Math.round((totalValue * ratio) / totalRatio / 5) * 5);
 
-		if (!product_info?.allow_items_not_in_stock && available_qty === 0
-			&& product_info && product_info?.is_stock_item) {
-			item_add_to_cart = '';
-		}
+                const tableField = this.dialog.fields_dict.size_table;
+                const gridRows = tableField.grid.grid_rows;
 
-		return `
-			${item_found_status}
-			${item_add_to_cart}
-		`;
-	}
+                gridRows.forEach((gridRow, index) => {
+                    const doc = gridRow.doc;
+                    doc.qty = requiredQtyArray[index];
 
-	btn_add_to_cart(e) {
-		if (frappe.session.user !== 'Guest') {
-			localStorage.removeItem(this.get_cache_key());
-		}
-		const item_code = $(e.currentTarget).data('item-code');
-		const additional_notes = Object.keys(this.range_values || {}).map(attribute => {
-			return `${attribute}: ${this.range_values[attribute]}`;
-		}).join('\n');
-		erpnext.e_commerce.shopping_cart.update_cart({
-			item_code,
-			additional_notes,
-			qty: 1
-		});
-		this.dialog.hide();
-	}
+                    if (selectedRows.includes(doc)) {
+                        doc.ratio = doc.ratio !== undefined ? doc.ratio : 1;
+                    } else {
+                        doc.ratio = undefined;
+                    }
 
-	btn_clear_values() {
-		this.dialog.fields_list.forEach(f => {
-			if (f.df?.options) {
-				f.df.options = f.df.options.map(option => {
-					option.disabled = false;
-					return option;
-				});
-			}
-		});
-		this.dialog.clear();
-		this.dialog.$status_area.empty();
-		this.on_attribute_selection();
-	}
+                    gridRow.refresh_field("qty");
+                    gridRow.refresh_field("ratio");
+                });
+            },
+            secondary_action_label: __('Get Quantity from Ratio'),
+        });
+        this.dialog.set_values(savedDialogState);
 
-	append_status_area() {
-		this.dialog.$status_area = $('<div class="status-area mt-5">');
-		this.dialog.$wrapper.find('.modal-body').append(this.dialog.$status_area);
-		this.dialog.$wrapper.on('click', '[data-action]', (e) => {
-			e.preventDefault();
-			const $target = $(e.currentTarget);
-			const action = $target.data('action');
-			const method = this[action];
-			method.call(this, e);
-		});
-		this.dialog.$wrapper.addClass('item-configurator-dialog');
-	}
+        const dialogBody = this.dialog.get_field('size_table').$wrapper.parent();
 
-	get_next_attribute_and_values(selected_attributes) {
-		return this.call('erpnext.e_commerce.variant_selector.utils.get_next_attribute_and_values', {
-			item_code: this.item_code,
-			selected_attributes
-		});
-	}
+        // Create a custom HTML element using frappe.ui.form.make_control
+        const customTextElement = frappe.ui.form.make_control({
+            df: {
+                fieldtype: 'HTML',
+                label: 'Custom Text',
+            },
+            render_input: true,
+            parent: dialogBody,
+        });
 
-	get_attributes_and_values() {
-		return this.call('erpnext.e_commerce.variant_selector.utils.get_attributes_and_values', {
-			item_code: this.item_code
-		});
-	}
+        customTextElement.set_value('You will get quantity in <b>Equal Ratio</b> if no ratio mentioned <br> Click on the <b><i>Get Quantity from Ratio</i></b> button to get quantities for each size');
 
-	get_cache_key() {
-		return `configure:${this.item_code}`;
-	}
+        if (size_table) {
+            const tableField = this.dialog.fields_dict.size_table;
+            const gridRows = tableField.grid.grid_rows;
 
-	call(method, args) {
-		// promisified frappe.call
-		return new Promise((resolve, reject) => {
-			frappe.call(method, args)
-				.then(r => resolve(r.message))
-				.fail(reject);
-		});
-	}
+            size_table.forEach((row, index) => {
+                gridRows[index].doc.qty = row.qty;
+                gridRows[index].doc.ratio = row.ratio;
+            });
+
+            tableField.grid.refresh();
+        }
+
+        this.dialog.onhide = () => {
+            const dialogValues = this.dialog.get_values();
+            const dialogState = {
+                total_qty: dialogValues.total_qty,
+                size_table: dialogValues.size_table
+            };
+
+            sessionStorage.setItem('dialogState', JSON.stringify(dialogState));
+        };
+
+
+        // Clear sessionStorage on page reload or when the user leaves the page
+        window.addEventListener('beforeunload', () => {
+            sessionStorage.removeItem('dialogState');
+        });
+        this.dialog.$wrapper.find('.modal-dialog').css("max-width", "650px").css("width", "auto");
+
+        this.dialog.show();
+
+        $('.btn-configure').prop('disabled', false);
+    }
+
+
+    getNextAttributeAndValues(selectedAttributes) {
+        return this.call('erpnext.e_commerce.variant_selector.utils.get_next_attribute_and_values', {
+            item_code: this.itemCode,
+            selected_attributes: selectedAttributes
+        });
+    }
+
+    getAttributesAndValues() {
+        return this.call('erpnext.e_commerce.variant_selector.utils.get_attributes_and_values', {
+            item_code: this.itemCode
+        });
+    }
+
+    call(method, args) {
+        return new Promise((resolve, reject) => {
+            frappe.call(method, args)
+                .then(response => resolve(response.message))
+                .fail(reject);
+        });
+    }
 }
 
-function set_continue_configuration() {
-	const $btn_configure = $('.btn-configure');
-	const { itemCode } = $btn_configure.data();
+function setContinueConfiguration() {
+    const $btnConfigure = $('.btn-configure');
+    const { itemCode } = $btnConfigure.data();
 
-	if (localStorage.getItem(`configure:${itemCode}`)) {
-		$btn_configure.text(__('Continue Selection'));
-	} else {
-		$btn_configure.text(__('Select Variant'));
-	}
+    const dialogState = JSON.parse(localStorage.getItem(`configure:${itemCode}`));
+
+    if (dialogState) {
+        $btnConfigure.text(__('Continue Adding'));
+    } else {
+        $btnConfigure.text(__('Select Sizes'));
+    }
 }
+
 
 frappe.ready(() => {
-	const $btn_configure = $('.btn-configure');
-	if (!$btn_configure.length) return;
-	const { itemCode, itemName } = $btn_configure.data();
+    const $btnConfigure = $('.btn-configure');
 
-	set_continue_configuration();
+    if (!$btnConfigure.length) return;
 
-	$btn_configure.on('click', () => {
-		$btn_configure.prop('disabled', true);
-		new ItemConfigure(itemCode, itemName);
-	});
+    const { itemCode, itemName } = $btnConfigure.data();
+
+    setContinueConfiguration();
+
+    $btnConfigure.on('click', () => {
+        $btnConfigure.prop('disabled', true);
+
+        // Check if user is a guest
+        if (frappe.session.user === "Guest") {
+            if (localStorage) {
+                localStorage.setItem("last_visited", window.location.pathname);
+            }
+            frappe.call('erpnext.e_commerce.api.get_guest_redirect_on_action').then((res) => {
+                const redirectUrl = res.message || "/login";
+                window.location.href = redirectUrl;
+            });
+            return;
+        }
+
+        new ItemConfigure(itemCode, itemName);
+    });
+
+    // Clear sessionStorage on page reload or when the user leaves the page
+    window.addEventListener('beforeunload', () => {
+        sessionStorage.clear();
+    });
 });

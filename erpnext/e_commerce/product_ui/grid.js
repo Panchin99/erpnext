@@ -24,7 +24,7 @@ erpnext.ProductGrid = class {
 			let title = item.web_item_name || item.item_name || item.item_code || "";
 			title =  title.length > 90 ? title.substr(0, 90) + "..." : title;
 
-			html += `<div class="col-sm-4 item-card"><div class="card text-left">`;
+			html += `<div class="col-sm-4 item-card"><div class="card border border-dark  text-left">`;
 			html += me.get_image_html(item, title);
 			html += me.get_card_body_html(item, title, me.settings);
 			html += `</div></div>`;
@@ -77,7 +77,7 @@ erpnext.ProductGrid = class {
 		}
 
 		body_html += `</div>`;
-		body_html += `<div class="product-category">${ item.item_group || '' }</div>`;
+		body_html += `<div class="product-category">${ item.item_group || '' } | Item Code : ${ item.item_code || ''}</div>`;
 
 		if (item.formatted_price) {
 			body_html += this.get_price_html(item);
@@ -116,7 +116,7 @@ erpnext.ProductGrid = class {
 	get_cart_indicator(item) {
 		return `
 			<div class="cart-indicator ${item.in_cart ? '' : 'hidden'}" data-item-code="${ item.item_code }">
-				1
+				*
 			</div>
 		`;
 	}
@@ -166,7 +166,7 @@ erpnext.ProductGrid = class {
 			return `
 				<a href="/${ item.route || '#' }">
 					<div class="btn btn-sm btn-explore-variants w-100 mt-4">
-						${ __('Explore') }
+						${ __('Buy Now') }
 					</div>
 				</a>
 			`;

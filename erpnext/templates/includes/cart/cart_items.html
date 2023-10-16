@@ -21,7 +21,7 @@
 {% for d in doc.items %}
 	<tr data-name="{{ d.name }}">
 		<td style="width: 60%;">
-			<div class="d-flex">
+			<div class="d-flex wrap">
 				<div class="cart-item-image mr-4">
 					{% if d.thumbnail %}
 						{{ product_image(d.thumbnail, alt="d.web_item_name", no_border=True) }}
@@ -49,11 +49,11 @@
 					</span>
 					{% endif %}
 
-					<div class="mt-2 notes">
+					<!-- <div class="mt-2 notes">
 						<textarea data-item-code="{{d.item_code}}" class="form-control" rows="2" placeholder="{{ _('Add notes') }}">
 							{{d.additional_notes or ''}}
 						</textarea>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</td>

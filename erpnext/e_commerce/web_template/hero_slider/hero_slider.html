@@ -9,7 +9,7 @@
 	'text-white': theme == 'Dark',
 	'': theme == 'Light',
 }) -%}
-<div class="carousel-item {{ 'active' if index=='1' else ''}}" style="height: 450px;">
+<div class="carousel-item {{ 'active' if index=='1' else ''}}">
 	<img class="d-block h-100 w-100" style="object-fit: cover;" src="{{ image }}" alt="{{ title }}">
 	{%- if title or subtitle -%}
 	<div class="carousel-body container d-flex {{ align_class }}">
@@ -78,7 +78,7 @@
 <script>
 	frappe.ready(function () {
 		$('.carousel').carousel({
-			interval: false,
+			interval: 3000,
 			pause: "hover",
 			wrap: true
 		})
