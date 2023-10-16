@@ -12,7 +12,7 @@
 			<div class="product-price">
 				<!-- Final Price -->
 				<span itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-					<span itemprop="price" content="{{ price_info.price_list_rate }}">{{ price_info.formatted_price_sales_uom }}</span>
+					<span itemprop="price" content="{{ price_info.price_list_rate }}">{{ price_info.formatted_price }}</span>
 					<span style="display:none;" itemprop="priceCurrency" content="{{ price_info.currency }}">{{ price_info.currency }}</span>
 				</span>
 
@@ -28,7 +28,7 @@
 
 				<!-- Price per UOM -->
 				<small class="formatted-price ml-2">
-					({{ price_info.formatted_price }} / {{ product_info.uom }})
+					({{ price_info.formatted_price_sales_uom }} / {{ product_info.sales_uom }})
 				</small>
 			</div>
 		{% else %}
@@ -124,20 +124,58 @@
 <script>
 	frappe.ready(() => {
 		$('.page_content').on('click', '.btn-add-to-cart', (e) => {
+
+			 // Check if user is a guest
+			 if (frappe.session.user === "Guest") {
+				if (localStorage) {
+					localStorage.setItem("last_visited", window.location.pathname);
+				}
+				frappe.call('erpnext.e_commerce.api.get_guest_redirect_on_action').then((res) => {
+					const redirectUrl = res.message || "/login";
+					window.location.href = redirectUrl;
+				});
+				return;
+			}
+			
 			// Bind action on add to cart button
 			const $btn = $(e.currentTarget);
 			$btn.prop('disabled', true);
 			const item_code = $btn.data('item-code');
-			erpnext.e_commerce.shopping_cart.update_cart({
-				item_code,
-				qty: 1,
-				callback(r) {
-					$btn.prop('disabled', false);
-					if (r.message) {
-						$('.btn-add-to-cart, .btn-view-in-cart').toggleClass('hidden');
+
+			// Create a dialog for quantity input
+			const d = new frappe.ui.Dialog({
+				title: __('Enter Quantity'),
+				fields: [
+					{
+						fieldname: 'quantity',
+						fieldtype: 'Int',
+						label: __('Quantity (in Boxes)'),
+						reqd: 1,
+						default: 1
 					}
-				}
+				],
+				primary_action: async () => {
+					const quantity = d.get_value('quantity');
+
+					// Update the cart with the specified quantity
+					await erpnext.e_commerce.shopping_cart.update_cart({
+						item_code,
+						qty: quantity,
+						callback: (r) => {
+							$btn.prop('disabled', false);
+							if (r.message) {
+								$('.btn-add-to-cart, .btn-view-in-cart').toggleClass('hidden');
+							}
+						}
+					});
+
+					d.hide();
+				},
+				primary_action_label: __('Update Cart')
 			});
+
+			d.show();
+			$btn.prop('disabled', false);
 		});
 
 		$('.page_content').on('click', '.offer-details', (e) => {

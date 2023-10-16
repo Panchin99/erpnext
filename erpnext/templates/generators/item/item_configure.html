@@ -1,20 +1,54 @@
 {% if shopping_cart and shopping_cart.cart_settings.enabled %}
 {% set cart_settings = shopping_cart.cart_settings %}
 
+
+<div class="col-md-12 item-cart row mt-2">
+	<!-- Price and Availability -->
+	{% if cart_settings.show_price and product_info.price %}
+	{% set price_info = product_info.price %}
+
+	<div class="product-price">
+		<!-- Final Price -->
+		<span itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+			<span itemprop="price" content="{{ price_info.price_list_rate }}">{{ price_info.formatted_price
+				}}</span>
+			<span style="display:none;" itemprop="priceCurrency" content="{{ price_info.currency }}">{{
+				price_info.currency }}</span>
+		</span>
+
+		<!-- Striked Price and Discount  -->
+		{% if price_info.formatted_mrp %}
+		<small class="formatted-price">
+			<s>MRP {{ price_info.formatted_mrp }}</s>
+		</small>
+		<small class="ml-1 formatted-price in-green">
+			-{{ price_info.get("formatted_discount_percent") or price_info.get("formatted_discount_rate")}}
+		</small>
+		{% endif %}
+
+		<!-- Price per UOM -->
+		<small class="formatted-price ml-2">
+			({{ price_info.formatted_price_sales_uom }} / {{ product_info.sales_uom }})
+		</small>
+	</div>
+	
+	{% endif %}
+</div>
+
 <div class="mt-5 mb-6">
-	{% if cart_settings.enable_variants | int %}
-	<button class="btn btn-primary-light btn-configure font-md mr-2"
-		data-item-code="{{ doc.item_code }}"
+	{% if cart_settings.show_price and product_info.price and cart_settings.enable_variants | int %}
+	<button class="btn btn-primary-light btn-configure font-md mr-2" 
+	data-item-code="{{ doc.item_code }}"
 		data-item-name="{{ doc.web_item_name }}"
-	>
-		{{ _('Select Variant') }}
+		>
+		{{ _('Select Sizes') }}
 	</button>
 	{% endif %}
 	{% if cart_settings.show_contact_us_button %}
-		{% include "templates/generators/item/item_inquiry.html" %}
+	{% include "templates/generators/item/item_inquiry.html" %}
 	{% endif %}
 </div>
 <script>
-{% include "templates/generators/item/item_configure.js" %}
+	{% include "templates/generators/item/item_configure.js" %}
 </script>
 {% endif %}

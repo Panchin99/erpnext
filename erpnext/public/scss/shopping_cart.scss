@@ -1379,3 +1379,15 @@ body.product-page {
 .mt-minus-1 {
 	margin-top: -1rem;
 }
+
+@media (max-width: 480px) {
+	.wrap{
+		flex-wrap: wrap;
+	}
+}
+
+@media (max-width: 768px) {
+	.cart-tax-items {
+		display: none !important;
+	}
+}
